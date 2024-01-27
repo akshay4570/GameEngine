@@ -60,7 +60,7 @@ public class AIEngine {
             }
         }
 
-        //Attacking Moves
+        //Defensive Moves
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (board1.getSymbol(i, j) == null) {
