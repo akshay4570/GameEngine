@@ -3,10 +3,38 @@ package api;
 import boards.TicTacToeBoard;
 import game.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class RuleEngine {
+
+    Map<String, List<Rule<TicTacToeBoard>>> rulesMap = new HashMap<>();
+
+    public RuleEngine() {
+        rulesMap.put(TicTacToeBoard.class.getName(), new ArrayList<>());
+        rulesMap.get(TicTacToeBoard.class.getName()).add(new Rule<TicTacToeBoard>(board -> isVictory((i) -> board.getSymbol(i, 0), (i, j) -> board.getSymbol(i, j))));
+        rulesMap.get(TicTacToeBoard.class.getName()).add(new Rule<TicTacToeBoard>(board -> isVictory((i) -> board.getSymbol(0, i), (i, j) -> board.getSymbol(j, i))));
+        rulesMap.get(TicTacToeBoard.class.getName()).add(new Rule<TicTacToeBoard>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, i))));
+        rulesMap.get(TicTacToeBoard.class.getName()).add(new Rule<TicTacToeBoard>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, 2 - i))));
+        rulesMap.get(TicTacToeBoard.class.getName()).add(new Rule<TicTacToeBoard>(board -> {
+            int countOfFilledCells = 0;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board.getCell(i, j) != null) {
+                        countOfFilledCells++;
+                    }
+                }
+            }
+
+            if (countOfFilledCells == 9) {
+                return new GameResult(true, "-");
+            }
+        }));
+    }
 
     public GameInfo getInfo(Board board) {
         if (board instanceof TicTacToeBoard) {
@@ -56,34 +84,15 @@ public class RuleEngine {
         if (board instanceof TicTacToeBoard) {
             TicTacToeBoard board1 = (TicTacToeBoard) board;
 
-            GameResult rowWin = isVictory((i) -> board1.getSymbol(i, 0), (i, j) -> board1.getSymbol(i, j));
-            if (rowWin != null) return rowWin;
-
-            GameResult colWin = isVictory((i) -> board1.getSymbol(0, i), (i, j) -> board1.getSymbol(j, i));
-            if (colWin != null) return colWin;
-
-            GameResult diagWin = isVictoryDiagonal((i) -> board1.getSymbol(i, i));
-            if (diagWin != null) return diagWin;
-
-            GameResult revDiagWin = isVictoryDiagonal((i) -> board1.getSymbol(i, 2 - i));
-            if (revDiagWin != null) return revDiagWin;
-
-            int countOfFilledCells = 0;
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if (board1.getCell(i, j) != null) {
-                        countOfFilledCells++;
-                    }
+            for (Rule<TicTacToeBoard> r : rulesMap.get(TicTacToeBoard.class.getName())) {
+                GameResult gameState = r.condition.apply(board1);
+                if (gameState.isOver()) {
+                    return gameState;
                 }
             }
-
-            if (countOfFilledCells == 9) {
-                return new GameResult(true, "-");
-            }
             return new GameResult(false, "-");
-
         } else {
-            return new GameResult(false, "-");
+            throw new IllegalArgumentException();
         }
     }
 
@@ -117,6 +126,14 @@ public class RuleEngine {
         }
 
         return null;
+    }
+}
+
+class Rule<T extends Board> {
+    Function<T, GameResult> condition;
+
+    public Rule(Function<T, GameResult> condition) {
+        this.condition = condition;
     }
 }
 
