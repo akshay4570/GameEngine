@@ -1,11 +1,69 @@
 package boards;
 
-import game.Board;
-import game.Cell;
-import game.Move;
+import api.Rule;
+import game.*;
+
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class TicTacToeBoard implements Board {
     String cells[][] = new String[3][3];
+
+    public static RuleSet<TicTacToeBoard> getRules() {
+        RuleSet<TicTacToeBoard> rules = new RuleSet<TicTacToeBoard>();
+        rules.add(new Rule<TicTacToeBoard>(board -> isVictory((i) -> board.getSymbol(i, 0), (i, j) -> board.getSymbol(i, j))));
+        rules.add(new Rule<TicTacToeBoard>(board -> isVictory((i) -> board.getSymbol(0, i), (i, j) -> board.getSymbol(j, i))));
+        rules.add(new Rule<TicTacToeBoard>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, i))));
+        rules.add(new Rule<TicTacToeBoard>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, 2 - i))));
+        rules.add(new Rule<TicTacToeBoard>(board -> {
+            int countOfFilledCells = 0;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board.getCell(i, j) != null) {
+                        countOfFilledCells++;
+                    }
+                }
+            }
+
+            if (countOfFilledCells == 9) {
+                return new GameResult(true, "-");
+            }
+            return new GameResult(false, "-");
+        }));
+        return rules;
+    }
+
+    public static GameResult isVictory(Function<Integer, String> startsWith, BiFunction<Integer, Integer, String> next) {
+        for (int i = 0; i < 3; i++) {
+            boolean possibleStreak = true;
+            for (int j = 0; j < 3; j++) {
+                if (next.apply(i, j) == null || !next.apply(i, 0).equals(next.apply(i, j))) {
+                    possibleStreak = false;
+                    break;
+                }
+            }
+            if (possibleStreak) {
+                return new GameResult(true, next.apply(i, 0));
+            }
+        }
+        return new GameResult(false, "-");
+    }
+
+    public static GameResult isVictoryDiagonal(Function<Integer, String> startsWith) {
+
+        boolean possibleStreak = true;
+        for (int i = 0; i < 3; i++) {
+            if (startsWith.apply(i) == null || !startsWith.apply(0).equals(startsWith.apply(i))) {
+                possibleStreak = false;
+                break;
+            }
+        }
+        if (possibleStreak) {
+            return new GameResult(true, startsWith.apply(0));
+        }
+
+        return new GameResult(false, "-");
+    }
 
     public String getCell(int row, int col) {
         return cells[row][col];

@@ -3,39 +3,15 @@ package api;
 import boards.TicTacToeBoard;
 import game.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class RuleEngine {
 
-    Map<String, List<Rule<TicTacToeBoard>>> rulesMap = new HashMap<>();
+    Map<String, RuleSet<TicTacToeBoard>> rulesMap = new HashMap<>();
 
     public RuleEngine() {
-        String key = TicTacToeBoard.class.getName();
-        rulesMap.put(key, new ArrayList<>());
-        rulesMap.get(key).add(new Rule<>(board -> isVictory((i) -> board.getSymbol(i, 0), (i, j) -> board.getSymbol(i, j))));
-        rulesMap.get(key).add(new Rule<>(board -> isVictory((i) -> board.getSymbol(0, i), (i, j) -> board.getSymbol(j, i))));
-        rulesMap.get(key).add(new Rule<>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, i))));
-        rulesMap.get(key).add(new Rule<>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, 2 - i))));
-        rulesMap.get(key).add(new Rule<>(board -> {
-            int countOfFilledCells = 0;
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if (board.getCell(i, j) != null) {
-                        countOfFilledCells++;
-                    }
-                }
-            }
-
-            if (countOfFilledCells == 9) {
-                return new GameResult(true, "-");
-            }
-            return new GameResult(false, "-");
-        }));
+        rulesMap.put(TicTacToeBoard.class.getName(), TicTacToeBoard.getRules());
     }
 
     public GameInfo getInfo(Board board) {
@@ -98,44 +74,5 @@ public class RuleEngine {
         }
     }
 
-    public GameResult isVictory(Function<Integer, String> startsWith, BiFunction<Integer, Integer, String> next) {
-        for (int i = 0; i < 3; i++) {
-            boolean possibleStreak = true;
-            for (int j = 0; j < 3; j++) {
-                if (next.apply(i, j) == null || !next.apply(i, 0).equals(next.apply(i, j))) {
-                    possibleStreak = false;
-                    break;
-                }
-            }
-            if (possibleStreak) {
-                return new GameResult(true, next.apply(i, 0));
-            }
-        }
-        return new GameResult(false, "-");
-    }
-
-    public GameResult isVictoryDiagonal(Function<Integer, String> startsWith) {
-
-        boolean possibleStreak = true;
-        for (int i = 0; i < 3; i++) {
-            if (startsWith.apply(i) == null || !startsWith.apply(0).equals(startsWith.apply(i))) {
-                possibleStreak = false;
-                break;
-            }
-        }
-        if (possibleStreak) {
-            return new GameResult(true, startsWith.apply(0));
-        }
-
-        return new GameResult(false, "-");
-    }
-}
-
-class Rule<T extends Board> {
-    Function<T, GameResult> condition;
-
-    public Rule(Function<T, GameResult> condition) {
-        this.condition = condition;
-    }
 }
 
