@@ -5,6 +5,7 @@ public class GameInfoBuilder {
     private String winner;
     private boolean hasFork;
     private Player player;
+    private Cell forkCell;
 
     public GameInfoBuilder isOver(boolean isOver) {
         this.isOver = isOver;
@@ -26,7 +27,12 @@ public class GameInfoBuilder {
         return this;
     }
 
+    public GameInfoBuilder forkCell(Cell forkCell) {
+        this.forkCell = forkCell;
+        return this;
+    }
+
     public GameInfo build() {
-        return new GameInfo(isOver, winner, hasFork, player);
+        return new GameInfo(isOver, winner, hasFork, player, forkCell);
     }
 }

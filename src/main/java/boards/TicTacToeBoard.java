@@ -1,7 +1,11 @@
 package boards;
 
 import api.Rule;
-import game.*;
+import api.RuleSet;
+import game.Board;
+import game.Cell;
+import game.GameResult;
+import game.Move;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

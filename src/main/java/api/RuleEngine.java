@@ -3,8 +3,7 @@ package api;
 import boards.TicTacToeBoard;
 import game.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class RuleEngine {
 
@@ -18,6 +17,7 @@ public class RuleEngine {
         if (board instanceof TicTacToeBoard) {
             GameResult gameState = getState(board);
             final String[] players = new String[]{"X", "O"};
+            Cell forkCell = null;
             for (int index = 0; index < players.length; index++) {
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
@@ -28,7 +28,8 @@ public class RuleEngine {
                         for (int k = 0; k < 3; k++) {
                             for (int l = 0; l < 3; l++) {
                                 Board b1 = board.copy();
-                                b1.move(new Move(new Cell(k, l), player.flip()));
+                                forkCell = new Cell(k, l);
+                                b1.move(new Move(forkCell, player.flip()));
                                 if (getState(b1).getWinner().equals(player.flip().symbol())) {
                                     canStillWin = true;
                                     break;
@@ -42,6 +43,7 @@ public class RuleEngine {
                             return new GameInfoBuilder().isOver(gameState.isOver())
                                     .winner(gameState.getWinner())
                                     .hasFork(true)
+                                    .forkCell(forkCell)
                                     .player(player.flip())
                                     .build();
                         }
@@ -73,6 +75,5 @@ public class RuleEngine {
             throw new IllegalArgumentException();
         }
     }
-
 }
 
