@@ -7,7 +7,7 @@ import java.util.*;
 
 public class RuleEngine {
 
-    Map<String, RuleSet<TicTacToeBoard>> rulesMap = new HashMap<>();
+    Map<String, RuleSet> rulesMap = new HashMap<>();
 
     public RuleEngine() {
         rulesMap.put(TicTacToeBoard.class.getName(), TicTacToeBoard.getRules());
@@ -64,7 +64,7 @@ public class RuleEngine {
         if (board instanceof TicTacToeBoard) {
             TicTacToeBoard board1 = (TicTacToeBoard) board;
 
-            for (Rule<TicTacToeBoard> r : rulesMap.get(TicTacToeBoard.class.getName())) {
+            for (Rule r : rulesMap.get(TicTacToeBoard.class.getName())) {
                 GameResult gameState = r.condition.apply(board1);
                 if (gameState.isOver()) {
                     return gameState;

@@ -2,7 +2,6 @@ package boards;
 
 import api.Rule;
 import api.RuleSet;
-import game.Board;
 import game.Cell;
 import game.GameResult;
 import game.Move;
@@ -10,20 +9,20 @@ import game.Move;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class TicTacToeBoard implements Board {
+public class TicTacToeBoard implements CellBoard {
     String cells[][] = new String[3][3];
 
-    public static RuleSet<TicTacToeBoard> getRules() {
-        RuleSet<TicTacToeBoard> rules = new RuleSet<TicTacToeBoard>();
-        rules.add(new Rule<TicTacToeBoard>(board -> isVictory((i) -> board.getSymbol(i, 0), (i, j) -> board.getSymbol(i, j))));
-        rules.add(new Rule<TicTacToeBoard>(board -> isVictory((i) -> board.getSymbol(0, i), (i, j) -> board.getSymbol(j, i))));
-        rules.add(new Rule<TicTacToeBoard>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, i))));
-        rules.add(new Rule<TicTacToeBoard>(board -> isVictoryDiagonal((i) -> board.getSymbol(i, 2 - i))));
-        rules.add(new Rule<TicTacToeBoard>(board -> {
+    public static RuleSet getRules() {
+        RuleSet rules = new RuleSet();
+        rules.add(new Rule(board -> isVictory((i) -> board.getSymbol(i, 0), (i, j) -> board.getSymbol(i, j))));
+        rules.add(new Rule(board -> isVictory((i) -> board.getSymbol(0, i), (i, j) -> board.getSymbol(j, i))));
+        rules.add(new Rule(board -> isVictoryDiagonal((i) -> board.getSymbol(i, i))));
+        rules.add(new Rule(board -> isVictoryDiagonal((i) -> board.getSymbol(i, 2 - i))));
+        rules.add(new Rule(board -> {
             int countOfFilledCells = 0;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    if (board.getCell(i, j) != null) {
+                    if (board.getSymbol(i, j) != null) {
                         countOfFilledCells++;
                     }
                 }
@@ -81,6 +80,7 @@ public class TicTacToeBoard implements Board {
         }
     }
 
+    @Override
     public String getSymbol(int row, int col) {
         return getCell(row, col);
     }
