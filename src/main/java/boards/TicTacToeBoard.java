@@ -2,15 +2,19 @@ package boards;
 
 import api.Rule;
 import api.RuleSet;
+import game.Board;
 import game.Cell;
 import game.GameResult;
 import game.Move;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class TicTacToeBoard implements CellBoard {
     String cells[][] = new String[3][3];
+    History history = new History();
 
     public static RuleSet getRules() {
         RuleSet rules = new RuleSet();
@@ -98,18 +102,51 @@ public class TicTacToeBoard implements CellBoard {
     }
 
     @Override
-    public void move(Move move) {
-        setCell(move.getCell(), move.getPlayer().symbol());
+    public Board move(Move move) {
+        history.add(new Representation(this));//Made History object light by using Flyweight Design Pattern
+        TicTacToeBoard board = copy();
+        board.setCell(move.getCell(), move.getPlayer().symbol());
+        return board;
     }
 
     @Override
     public TicTacToeBoard copy() {
         TicTacToeBoard ticTacToeBoard = new TicTacToeBoard();
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                ticTacToeBoard.cells[i][j] = cells[i][j];
-            }
+            System.arraycopy(cells[i], 0, ticTacToeBoard.cells[i], 0, 3);
         }
+        ticTacToeBoard.history = history;
         return ticTacToeBoard;
+    }
+}
+
+class History {
+    List<Representation> boards = new ArrayList<>();
+
+    public Representation getBoardAtMove(int moveIndex) {
+        for (int i = 0; i < boards.size() - (moveIndex + 1); i++) {
+            boards.remove(boards.size() - 1);
+        }
+        return boards.get(moveIndex);
+    }
+
+    public Representation undo() {
+        if (boards.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        boards.remove(boards.size() - 1);
+        return boards.get(boards.size() - 1);
+    }
+
+    public void add(Representation representation) {
+        boards.add(representation);
+    }
+}
+
+class Representation {
+    String representation;
+
+    public Representation(TicTacToeBoard board) {
+        representation = board.toString();
     }
 }
