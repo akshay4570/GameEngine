@@ -4,9 +4,18 @@ public class Game {
     private GameConfig gameConfig;
     private Board board;
     Player winner;
-    private int lastMoveTimeInMillis;
-    private int maxTimePerPlayer;
-    private int maxTimePerMove;
+    private Integer lastMoveTimeInMillis;
+    private Integer maxTimePerPlayer;
+    private Integer maxTimePerMove;
+
+    public Game(GameConfig gameConfig, Board board, Player winner, Integer lastMoveTimeInMillis, Integer maxTimePerPlayer, Integer maxTimePerMove) {
+        this.gameConfig = gameConfig;
+        this.board = board;
+        this.winner = winner;
+        this.lastMoveTimeInMillis = lastMoveTimeInMillis;
+        this.maxTimePerPlayer = maxTimePerPlayer;
+        this.maxTimePerMove = maxTimePerMove;
+    }
 
     public void move(Move move, int timeStampInMillis) {
         int timeTakenSinceLastMove = timeStampInMillis - lastMoveTimeInMillis;
@@ -19,26 +28,16 @@ public class Game {
     }
 
     private void moveForTimedGame(Move move, int timeTakenSinceLastMove) {
-        if (gameConfig.timePerMove != null) {
-            if (moveMadeInTime(timeTakenSinceLastMove)) {
-                board.move(move);
-            } else {
-                winner = move.getPlayer().flip();
-            }
+        int currentTime = gameConfig.timePerMove != null ? timeTakenSinceLastMove : move.getPlayer().getTimeUsedInMillis();
+        int endTime = gameConfig.timePerMove != null ? maxTimePerMove : maxTimePerPlayer;
+        if (currentTime < endTime) {
+            board.move(move);
         } else {
-            if (moveMadeInTime(move.getPlayer())) {
-                board.move(move);
-            } else {
-                winner = move.getPlayer().flip();
-            }
+            winner = move.getPlayer().flip();
         }
     }
 
-    private boolean moveMadeInTime(int timeTakenSinceLastMove) {
-        return timeTakenSinceLastMove < maxTimePerMove;
-    }
-
-    private boolean moveMadeInTime(Player player) {
-        return player.getTimeUsedInMillis() < maxTimePerPlayer;
+    public void setConfig(GameConfig gameConfig) {
+        this.gameConfig = gameConfig;
     }
 }
