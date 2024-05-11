@@ -15,7 +15,7 @@ public class ForkPlacement implements Placement {
     private ForkPlacement() {
     }
 
-    public static synchronized Placement get() {
+    public static synchronized ForkPlacement get() {
         forkPlacement = (ForkPlacement) Utils.singleTon(forkPlacement, ForkPlacement::new);
         return forkPlacement;
     }

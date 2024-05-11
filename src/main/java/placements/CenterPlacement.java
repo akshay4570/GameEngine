@@ -14,7 +14,7 @@ public class CenterPlacement implements Placement {
     private CenterPlacement() {
     }
 
-    public static synchronized Placement get() {
+    public static synchronized CenterPlacement get() {
         centerPlacement = (CenterPlacement) Utils.singleTon(centerPlacement, CenterPlacement::new);
         return centerPlacement;
     }

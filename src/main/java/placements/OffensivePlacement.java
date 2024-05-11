@@ -15,7 +15,7 @@ public class OffensivePlacement implements Placement {
     private OffensivePlacement() {
     }
 
-    public static synchronized Placement get() {
+    public static synchronized OffensivePlacement get() {
         offensivePlacement = (OffensivePlacement) Utils.singleTon(offensivePlacement, OffensivePlacement::new);
         return offensivePlacement;
     }
@@ -35,8 +35,7 @@ public class OffensivePlacement implements Placement {
             for (int j = 0; j < 3; j++) {
                 if (board1.getSymbol(i, j) == null) {
                     Move move = new Move(new Cell(i, j), player);
-                    TicTacToeBoard boardCopy = board1.copy();
-                    boardCopy.move(move);
+                    TicTacToeBoard boardCopy = board1.move(move);
                     if (ruleEngine.getState(boardCopy).isOver()) {
                         return move.getCell();
                     }

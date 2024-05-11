@@ -2,7 +2,6 @@ package boards;
 
 import api.Rule;
 import api.RuleSet;
-import game.Board;
 import game.Cell;
 import game.GameResult;
 import game.Move;
@@ -102,7 +101,7 @@ public class TicTacToeBoard implements CellBoard {
     }
 
     @Override
-    public Board move(Move move) {
+    public TicTacToeBoard move(Move move) {
         history.add(new Representation(this));//Made History object light by using Flyweight Design Pattern
         TicTacToeBoard board = copy();
         board.setCell(move.getCell(), move.getPlayer().symbol());
@@ -117,6 +116,19 @@ public class TicTacToeBoard implements CellBoard {
         }
         ticTacToeBoard.history = history;
         return ticTacToeBoard;
+    }
+
+    public enum Symbol {
+        X("X"), O("O");
+        String marker;
+
+        Symbol(String marker) {
+            this.marker = marker;
+        }
+
+        public String getMarker() {
+            return marker;
+        }
     }
 }
 
